@@ -219,15 +219,33 @@ bool q_delete_dup(struct list_head *head)
     char *value = NULL;
     struct list_head *li;
     struct list_head *lx;
+    struct list_head *dup_start_head = NULL;
+    int count = 0;
     list_for_each_safe (li, lx, head) {
         element_t *e = list_entry(li, element_t, list);
         if ((e->value && !value) || (strcmp(e->value, value) != 0)) {
             value = e->value;
+            if (count) {
+                // Delete the first duplicate element
+                element_t *dup_start_e =
+                    list_entry(dup_start_head, element_t, list);
+                list_del(dup_start_head);
+                q_release_element(dup_start_e);
+            }
+            dup_start_head = li;
+            count = 0;
         } else {
-            // Delete duplicate element
+            // Delete other duplicate element
             list_del(li);
             q_release_element(e);
+            count++;
         }
+    }
+    if (count) {
+        // Delete the first duplicate element
+        element_t *dup_start_e = list_entry(dup_start_head, element_t, list);
+        list_del(dup_start_head);
+        q_release_element(dup_start_e);
     }
     return true;
 }
