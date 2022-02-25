@@ -360,3 +360,29 @@ void q_sort(struct list_head *head)
     head->prev = prev;
     prev->next = head;
 }
+
+void q_shuffle(struct list_head *head)
+{
+    int size = q_size(head);
+    if (size <= 1) {
+        return;
+    }
+    struct list_head *li;
+    int i = size - 1;
+    for (li = head->prev; li != head; li = li->prev) {
+        int j = rand() % (i + 1);
+        if (i != j) {
+            struct list_head *lj = head->next;
+            while (j) {
+                lj = lj->next;
+                j--;
+            }
+            element_t *e1 = list_entry(li, element_t, list);
+            element_t *e2 = list_entry(lj, element_t, list);
+            char *tmp = e1->value;
+            e1->value = e2->value;
+            e2->value = tmp;
+        }
+        i--;
+    }
+}
